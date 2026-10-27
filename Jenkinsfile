@@ -5,7 +5,9 @@ def run(String cmd) {
 
 pipeline {
     agent any
-
+    environment {
+        KUBECONFIG = 'C:\\Users\\atif\\.kube\\config'
+    }
     stages {
         stage('Checkout') {
             steps {
