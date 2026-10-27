@@ -1,0 +1,13 @@
+{
+  "name": "attendance-app-tests",
+  "version": "1.0.0",
+  "description": "Selenium WebDriver tests for the Student Attendance Management System",
+  "private": true,
+  "scripts": {
+    "test": "mocha --timeout 60000 --exit attendance.test.js"
+  },
+  "dependencies": {
+    "mocha": "^12.0.3",
+    "selenium-webdriver": "^4.51.0"
+  }
+}

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student Attendance Management System</title>
+<link rel="stylesheet" href="styles.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<h1>Student Attendance Management System</h1>
+<p class="sub">Class: CSE (AI &amp; ML) &nbsp;|&nbsp; 7 periods per day</p>
+
+<nav>
+  <button data-tab="students" class="active">1. Students</button>
+  <button data-tab="daily">2. Daily Attendance</button>
+  <button data-tab="records">3. Records</button>
+  <button data-tab="monthly">4. Monthly Calculation</button>
+  <button data-tab="reports">5. Reports</button>
+</nav>
+
+<!-- ================= MODULE 1 : STUDENTS ================= -->
+<section id="tab-students" class="tab active">
+  <h2>Student Management</h2>
+  <form id="studentForm" class="row">
+    <input id="sRoll" placeholder="Roll No" size="8">
+    <input id="sName" placeholder="Student Name" size="20">
+    <input id="sDept" placeholder="Department" size="18" value="CSE (AI &amp; ML)">
+    <button type="submit" id="sSubmit">Add Student</button>
+    <button type="button" id="sCancel" style="display:none">Cancel</button>
+    <button type="button" id="sSample">Load Sample Class</button>
+    <button type="button" id="sClear">Delete All Data</button>
+  </form>
+
+  <table id="studentTable">
+    <thead>
+      <tr><th>Roll No</th><th>Name</th><th>Department</th><th>Actions</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<!-- ================= MODULE 2 : DAILY ATTENDANCE ================= -->
+<section id="tab-daily" class="tab">
+  <h2>Daily Attendance</h2>
+  <div class="row">
+    <label>Date: <input type="date" id="attDate"></label>
+    <button id="allPresent">Mark All Present</button>
+    <button id="allAbsent">Mark All Absent</button>
+    <button id="saveAtt">Save Attendance</button>
+  </div>
+  <div class="sum" id="dailyInfo"></div>
+
+  <table id="dailyTable">
+    <thead>
+      <tr>
+        <th>Roll No</th><th>Student</th>
+        <th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th><th>P7</th>
+        <th>Present</th><th>Absent</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<!-- ================= MODULE 3 : RECORDS ================= -->
+<section id="tab-records" class="tab">
+  <h2>Attendance Record Management</h2>
+  <div class="row">
+    <label>View date: <input type="date" id="recDate"></label>
+    <button id="recViewBtn">View</button>
+  </div>
+  <div id="recView"></div>
+
+  <h2>Saved Dates</h2>
+  <table id="recDates">
+    <thead>
+      <tr><th>Date</th><th>Students</th><th>Present</th><th>Absent</th><th>Actions</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<!-- ================= MODULE 4 : MONTHLY ================= -->
+<section id="tab-monthly" class="tab">
+  <h2>Monthly Attendance Calculation</h2>
+  <div class="row">
+    <label>Month: <input type="month" id="monMonth"></label>
+    <label>Threshold %:
+      <input type="number" id="monThreshold" value="75" min="0" max="100" style="width:60px">
+    </label>
+  </div>
+  <div class="sum" id="monSummary"></div>
+
+  <table id="monTable">
+    <thead>
+      <tr>
+        <th>Roll No</th><th>Student</th><th>Attended</th><th>Absent</th>
+        <th>Total Periods</th><th>Percentage</th><th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<!-- ================= MODULE 5 : REPORTS ================= -->
+<section id="tab-reports" class="tab">
+  <h2>Reports</h2>
+  <div class="row">
+    <label>Month: <input type="month" id="repMonth"></label>
+    <label>Threshold %:
+      <input type="number" id="repThreshold" value="75" min="0" max="100" style="width:60px">
+    </label>
+    <button id="exportBtn">Export Monthly Report (CSV)</button>
+  </div>
+  <div class="sum" id="repSummary"></div>
+
+  <table id="repTable">
+    <thead>
+      <tr>
+        <th>Roll No</th><th>Student</th><th>Department</th><th>Attended</th>
+        <th>Absent</th><th>Total</th><th>Percentage</th><th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Daily Attendance History</h2>
+  <table id="histTable">
+    <thead>
+      <tr><th>Date</th><th>Day</th><th>Students</th><th>Present</th><th>Absent</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<div id="toast" class="toast"></div>
+
+</body>
+</html>
