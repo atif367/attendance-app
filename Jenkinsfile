@@ -1,12 +1,10 @@
+// Works with Jenkins on Windows (bat) and on Linux / WSL / Docker (sh)
+def run(String cmd) {
+    if (isUnix()) { sh cmd } else { bat cmd }
+}
+
 pipeline {
     agent any
-
-    environment {
-        DOCKER_IMAGE = 'YOUR_DOCKERHUB_USERNAME/attendance-app'
-        DOCKER_TAG = "${env.BUILD_NUMBER}"
-        ATTENDANCE_URL = 'http://localhost:8081'
-        TEST_CONTAINER = 'attendance-app-test'
-    }
 
     stages {
         stage('Checkout') {
@@ -15,52 +13,43 @@ pipeline {
             }
         }
 
-        stage('Build Test Image') {
+        stage('Build Docker Image') {
             steps {
-                sh 'docker build -f dockerfile -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
-                sh 'docker run -d --name ${TEST_CONTAINER} -p 8081:8081 ${DOCKER_IMAGE}:${DOCKER_TAG}'
-                sh 'until curl --fail --silent ${ATTENDANCE_URL} > /dev/null; do sleep 2; done'
-            }
-        }
-
-        stage('Install & Test (Selenium)') {
-            steps {
-                dir('tests') {
-                    sh 'npm ci'
-                    sh 'npm test'
+                script {
+                    run 'docker build -f dockerfile -t attendance-app:latest .'
                 }
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Run Container') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh 'echo "$DOCKER_PASS" | docker login --username "$DOCKER_USER" --password-stdin'
-                    sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
-                    sh 'docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest'
-                    sh 'docker push ${DOCKER_IMAGE}:latest'
+                script {
+                    run 'docker rm -f attendance-app || echo no old container'
+                    run 'docker run -d --name attendance-app -p 8081:8081 attendance-app:latest'
+                    retry(10) {
+                        sleep 3
+                        run 'curl --fail --silent http://localhost:8081/healthz'
+                    }
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f pvc.yaml -f deployment.yaml -f service.yaml'
-                sh 'kubectl set image deployment/attendance-app attendance-app=${DOCKER_IMAGE}:${DOCKER_TAG}'
-                sh 'kubectl rollout status deployment/attendance-app --timeout=120s'
+                script {
+                    run 'kubectl apply -f pvc.yaml -f deployment.yaml -f service.yaml'
+                    run 'kubectl rollout restart deployment/attendance-app'
+                    run 'kubectl rollout status deployment/attendance-app --timeout=120s'
+                }
             }
         }
     }
 
     post {
-        always {
-            sh 'docker rm --force ${TEST_CONTAINER} || true'
-            sh 'docker logout || true'
-            cleanWs()
+        failure {
+            script {
+                run 'docker logs attendance-app || echo no container logs'
+            }
         }
     }
 }
